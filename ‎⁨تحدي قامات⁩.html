@@ -1,0 +1,385 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>تحدي قامات</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700&family=Tajawal:wght@400;500;700&display=swap">
+<style>
+/* Layout: questions on the right (RTL start), letter board on the left, side by side at every width. */
+:root {
+  --bg-top: #9AACAE;
+  --bg-mid: #7B9498;
+  --bg-bot: #547379;
+  --lattice: rgba(255, 255, 255, 0.06);
+  --surface: #EDF3F3;
+  --ink: #12353A;
+  --ink-soft: #3F5D62;
+  --accent: #1C4A4F;
+  --accent-mid: #2F7F89;
+  --line: #B9CCCE;
+  --on-accent: #EDF5F5;
+  --warn: #B3402A;
+  /* Fonts: change these two lines to try other Arabic faces. */
+  --font-display: 'Noto Kufi Arabic', 'Reem Kufi', Tahoma, sans-serif;
+  --font-text: 'Tajawal', 'Noto Kufi Arabic', Tahoma, sans-serif;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--bg-bot); }
+body {
+  min-height: 100%;
+  background-color: var(--bg-mid);
+  background-image:
+    linear-gradient(45deg, transparent 48.5%, var(--lattice) 48.5% 51.5%, transparent 51.5%),
+    linear-gradient(-45deg, transparent 48.5%, var(--lattice) 48.5% 51.5%, transparent 51.5%),
+    linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 50%, var(--bg-bot) 100%);
+  background-size: 40px 40px, 40px 40px, 100% 100%;
+  background-attachment: scroll, scroll, fixed;
+  color: var(--ink);
+  font-family: var(--font-text);
+  direction: rtl;
+}
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+.app {
+  max-width: 1040px;
+  margin-inline: auto;
+  padding-block: 16px 32px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.mark { height: 52px; width: auto; flex: none; fill: var(--accent); }
+.head-text { min-width: 0; }
+h1 { margin: 0; font: 700 clamp(22px, 6vw, 36px)/1.15 var(--font-display); text-wrap: balance; color: var(--ink); }
+.sub { margin: 3px 0 0; font-size: clamp(14px, 3.4vw, 18px); font-weight: 500; color: var(--ink); opacity: 0.85; line-height: 1.4; }
+
+main { display: grid; gap: 10px; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.4fr); align-items: start; }
+@media (min-width: 560px) {
+  main { gap: 24px; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); }
+  .mark { height: 64px; }
+}
+@media (min-width: 820px) {
+  main { gap: 40px; grid-template-columns: minmax(0, 1fr) minmax(0, 520px); }
+  .mark { height: 78px; }
+}
+
+.qs-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.label { margin: 0; font: 700 13px/1 var(--font-display); letter-spacing: 0.06em; color: var(--ink); }
+.count { font: 700 14px/1 var(--font-display); color: var(--ink); font-variant-numeric: tabular-nums; }
+
+#qlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.q {
+  width: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; text-align: start;
+  padding: 9px 10px; min-height: 48px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 4px; cursor: pointer;
+  font-size: clamp(14px, 3.7vw, 20px); line-height: 1.35; font-weight: 700;
+  transition: border-color .15s, background-color .15s;
+}
+.q:hover { border-color: var(--accent); }
+.q .t { flex: 1 1 60%; min-width: 0; }
+.dm { flex: none; width: 10px; height: 10px; border: 2px solid var(--accent); transform: rotate(45deg); background: transparent; transition: background-color .2s; }
+.q.active { border-color: var(--accent); background: #fff; box-shadow: inset -4px 0 0 var(--accent); }
+.q.active .dm { background: var(--accent-mid); border-color: var(--accent-mid); }
+.q.done { cursor: default; background: #E1EBEB; }
+.q.done .dm { background: var(--accent); }
+.ans {
+  flex: none; margin-inline-start: auto; padding: 2px 12px 4px; border-radius: 999px;
+  background: var(--accent); color: var(--on-accent);
+  font: 600 15px/1.5 var(--font-display);
+}
+#msg {
+  min-height: 3em; margin: 10px 0 0; padding: 8px 10px; border-radius: 4px;
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  font-size: clamp(14px, 3.6vw, 18px); font-weight: 500; line-height: 1.45; color: var(--ink);
+}
+#msg.good { color: var(--accent); font-weight: 700; }
+#msg.bad { color: var(--warn); font-weight: 700; }
+
+.board {
+  position: relative; width: 100%; max-width: 520px; margin-inline: auto;
+  padding: 9px; background: var(--surface);
+  border: 1px solid var(--accent); outline: 1px solid var(--line); outline-offset: -4px;
+  box-shadow: 0 10px 30px rgba(18, 53, 58, 0.22);
+}
+@media (min-width: 560px) { .board { padding: 18px; outline-offset: -7px; } }
+.board::before, .board::after {
+  content: ""; position: absolute; left: 50%; width: 11px; height: 11px;
+  background: var(--surface); border: 1px solid var(--accent);
+  transform: translateX(-50%) rotate(45deg);
+}
+.board::before { top: -6px; }
+.board::after { bottom: -6px; }
+
+.field { position: relative; aspect-ratio: 1; container-type: inline-size; touch-action: none; user-select: none; -webkit-user-select: none; cursor: pointer; }
+.grid { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr); direction: rtl; width: 100%; height: 100%; }
+.cell {
+  display: grid; place-items: center; line-height: 1; pointer-events: none;
+  font-family: var(--font-display); font-weight: 600; color: var(--ink);
+  font-size: clamp(14px, 5vw, 32px);
+  font-size: calc(100cqw / 8 * 0.56);
+}
+.lines { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; overflow: visible; }
+.lines line { stroke-width: 0.74; stroke-linecap: round; fill: none; }
+.ln-found { stroke: var(--accent-mid); opacity: 0.45; }
+.ln-drag { stroke: var(--accent-mid); opacity: 0.6; }
+.ln-bad { stroke: var(--warn); opacity: 0.5; }
+.board.shake { animation: shake .35s; }
+@keyframes shake { 20% { transform: translateX(-5px); } 60% { transform: translateX(5px); } 100% { transform: none; } }
+
+.win { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); background: rgba(84, 115, 121, 0.82); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); overflow-y: auto; }
+.win-card {
+  width: min(100%, 420px); text-align: center; padding: 28px 22px 24px;
+  background: var(--surface); border: 1px solid var(--accent); outline: 1px solid var(--line); outline-offset: -7px;
+}
+.win-mark { width: min(46%, 170px); height: auto; margin: 0 auto 6px; display: block; overflow: visible; }
+.win-mark use { fill: transparent; stroke: var(--accent); stroke-width: 3; stroke-dasharray: 1 1; stroke-dashoffset: 1; }
+.win.play .win-mark use { animation: draw 1.8s ease forwards, fillin .8s ease 1.6s forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes fillin { to { fill: var(--accent); stroke: var(--accent); } }
+.win h2 { margin: 8px 0 0; font: 700 clamp(38px, 11vw, 52px)/1.2 var(--font-display); color: var(--accent); }
+.win .done-line { margin: 8px 0 0; font: 600 22px/1.3 var(--font-display); }
+.win .note { margin: 8px 0 20px; font-size: 18px; color: var(--ink-soft); }
+.win.play h2, .win.play .done-line, .win.play .note { animation: rise .6s ease 1.9s backwards; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+.btns { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.btn {
+  min-height: 46px; padding: 8px 22px; border-radius: 4px; cursor: pointer;
+  border: 1px solid var(--accent); background: transparent;
+  font: 600 16px/1.2 var(--font-display);
+}
+.btn.primary { background: var(--accent); color: var(--on-accent); }
+.btn:hover { filter: brightness(1.08); }
+
+@media (prefers-reduced-motion: reduce) {
+  .board.shake { animation: none; }
+  .win-mark use, .win.play .win-mark use { animation: none; stroke-dashoffset: 0; fill: var(--accent); stroke: var(--accent); }
+  .win.play h2, .win.play .done-line, .win.play .note { animation: none; }
+}
+</style>
+
+<div class="app" id="app" dir="rtl" lang="ar">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs><path id="lp" pathLength="1" fill-rule="evenodd" d="M399 1052 L335 1047 L263 1038 L234 1032 L205 1020 L173 1296 L169 1299 L10 1355 L383 1355ZM146 860 L145 878 L149 901 L168 966 L183 989 L202 1006 L222 1017 L256 1027 L346 1038 L385 1041 L403 1040 L402 985 L374 984 L343 980 L297 968 L265 955 L240 941 L220 927 L162 870 L152 862ZM821 876 L784 856 L780 856 L740 878 L693 895 L663 902 L631 906 L580 906 L535 900 L498 891 L459 877 L425 861 L398 1355 L830 1349 L823 890ZM947 818 L948 842 L944 856 L936 871 L928 881 L912 894 L899 900 L884 900 L856 892 L837 884 L851 1352 L1092 1355 L1092 1348 L986 860 L981 852ZM424 549 L231 788 L217 910 L230 922 L258 940 L293 956 L330 967 L386 975 L403 974ZM283 832 L307 862 L332 832 L366 875 L365 879 L333 919 L307 890 L284 920 L249 877ZM887 281 L853 325 L884 364 L889 367 L921 327 L921 323ZM459 226 L454 255 L448 317 L438 495 L430 720 L430 851 L461 867 L499 881 L541 891 L581 896 L640 895 L685 887 L736 869 L764 855 L781 844 L836 873 L872 887 L894 891 L911 883 L926 868 L935 852 L938 841 L936 813 L922 777 L895 729 L883 713 L869 699 L850 689 L836 690 L824 700 L801 750 L781 779 L756 802 L733 816 L700 828 L665 834 L643 836 L587 836 L529 826 L500 817 L487 810 L490 733 L490 604 L486 489 L472 298 L466 251 L461 228ZM846 765 L861 765 L870 770 L881 782 L887 797 L888 817 L885 827 L880 832 L873 833 L861 828 L842 813 L830 800 L830 794 L835 779 L840 770ZM886 221 L853 262 L853 265 L872 288 L887 271 L900 287 L903 288 L920 267 L921 263 L890 223ZM613 126 L466 211 L474 238 L481 288 L487 348 L495 468 L500 595 L500 741 L498 805 L547 820 L577 825 L608 827 L654 825 L685 821 L715 813 L740 801 L758 788 L782 762 L792 746 L806 714 L819 691 L818 645 L764 662 L742 665 L707 664 L691 660 L669 649 L651 632 L644 619 L634 582 L630 554 L622 472 L614 355 L609 248 L609 182ZM807 13 L682 86 L680 153 L680 278 L684 377 L692 466 L702 518 L712 542 L728 559 L747 567 L769 567 L786 562 L797 557 L817 543 L815 460 L765 458 L766 375 L770 325 L775 291 L788 245 L797 230 L811 218ZM675 10 L645 56 L635 77 L627 105 L621 147 L619 184 L621 300 L630 441 L639 545 L647 594 L653 614 L659 626 L675 641 L695 651 L714 655 L744 655 L776 649 L826 631 L891 597 L923 575 L924 474 L922 424 L916 374 L911 350 L888 378 L870 357 L874 391 L873 400 L815 399 L816 346 L823 311 L830 302 L838 301 L853 314 L868 293 L845 265 L857 245 L844 234 L833 228 L819 226 L812 229 L804 237 L798 247 L791 266 L785 291 L777 360 L775 448 L818 449 L855 453 L863 457 L869 464 L870 480 L867 491 L857 511 L841 533 L818 555 L787 572 L768 577 L742 576 L721 566 L704 548 L694 526 L684 482 L674 378 L670 286 L670 139Z"/></defs>
+  </svg>
+
+  <header>
+    <svg class="mark" viewBox="0 0 1102 1365" role="img" aria-label="شعار قامات"><use href="#lp"/></svg>
+    <div class="head-text">
+      <h1>تحدي قامات</h1>
+      <p class="sub">اختر السؤال ثم وصّل حروف الإجابة.</p>
+    </div>
+  </header>
+
+  <main>
+    <section aria-labelledby="qh">
+      <div class="qs-head">
+        <h2 class="label" id="qh">الأسئلة</h2>
+        <span class="count" id="count" aria-live="polite">٠ من ٤</span>
+      </div>
+      <ol id="qlist"></ol>
+      <p id="msg" role="status" aria-live="polite"></p>
+    </section>
+
+    <section aria-label="لوحة الحروف">
+      <div class="board" id="board">
+        <div class="field" id="field">
+          <svg class="lines" id="lines" viewBox="0 0 8 8" preserveAspectRatio="none" aria-hidden="true"><g id="found"></g><g id="cur"></g></svg>
+          <div class="grid" id="grid"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="win" id="win" hidden role="dialog" aria-modal="true" aria-labelledby="wt">
+    <div class="win-card">
+      <svg class="win-mark" viewBox="0 0 1102 1365" aria-hidden="true"><use href="#lp"/></svg>
+      <h2 id="wt">مبروك!</h2>
+      <p class="done-line">تم الإنجاز</p>
+      <p class="note">أجبت عن الأسئلة الأربعة.</p>
+      <div class="btns">
+        <button class="btn primary" id="again" type="button">العب من جديد</button>
+        <button class="btn" id="close" type="button">عرض اللوحة</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var N = 8;
+  var QUESTIONS = [
+    { q: 'من أفضل مبادرة؟', a: 'قامات' },
+    { q: 'من أفضل قائدة؟', a: 'هيا' },
+    { q: 'من أفضل إدارة؟', a: 'الموارد' },
+    { q: 'ما اللقب الذي يُطلق على الشخص المميز في قامات؟', a: 'قامة' }
+  ];
+  // r = row from top, c = column from the right (Arabic reading order)
+  var PLACE = [
+    { a: 'قامات',   r: 0, c: 1, dr: 0, dc: 1 },
+    { a: 'الموارد', r: 1, c: 0, dr: 1, dc: 1 },
+    { a: 'هيا',     r: 1, c: 7, dr: 1, dc: 0 },
+    { a: 'قامة',    r: 7, c: 0, dr: 0, dc: 1 }
+  ];
+  var POOL = 'ابتثجحخدذرزسشصضطظعغفقكلمنهوية';
+
+  function rng(seed) {
+    return function () {
+      seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+      var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  function ar(n) { return String(n).replace(/\d/g, function (d) { return '٠١٢٣٤٥٦٧٨٩'[d]; }); }
+
+  var G = [];
+  (function build() {
+    var rand = rng(11), r, c;
+    for (r = 0; r < N; r++) { G[r] = []; for (c = 0; c < N; c++) G[r][c] = ''; }
+    PLACE.forEach(function (p) {
+      for (var i = 0; i < p.a.length; i++) G[p.r + p.dr * i][p.c + p.dc * i] = p.a[i];
+    });
+    for (r = 0; r < N; r++) for (c = 0; c < N; c++) {
+      if (!G[r][c]) G[r][c] = POOL[Math.floor(rand() * POOL.length)];
+    }
+  })();
+
+  var $ = function (id) { return document.getElementById(id); };
+  var grid = $('grid'), field = $('field'), board = $('board'), found = $('found'), cur = $('cur');
+  var qlist = $('qlist'), msg = $('msg'), count = $('count'), win = $('win');
+  var NS = 'http://www.w3.org/2000/svg';
+
+  for (var r = 0; r < N; r++) for (var c = 0; c < N; c++) {
+    var d = document.createElement('div');
+    d.className = 'cell'; d.textContent = G[r][c];
+    grid.appendChild(d);
+  }
+
+  var state, dragging, start, path;
+  function reset() {
+    state = { solved: {}, active: 0 };
+    dragging = false; start = null; path = [];
+    found.innerHTML = ''; cur.innerHTML = '';
+    setMsg('اختر سؤالًا ثم اسحب بإصبعك على الحروف.', '');
+    render();
+  }
+  function doneCount() { return Object.keys(state.solved).length; }
+  function setMsg(t, cls) { msg.textContent = t; msg.className = cls || ''; }
+
+  function render() {
+    qlist.innerHTML = '';
+    QUESTIONS.forEach(function (it, i) {
+      var li = document.createElement('li');
+      var b = document.createElement('button');
+      b.type = 'button';
+      var isDone = !!state.solved[i];
+      b.className = 'q' + (i === state.active && !isDone ? ' active' : '') + (isDone ? ' done' : '');
+      b.setAttribute('aria-pressed', i === state.active && !isDone ? 'true' : 'false');
+      var dm = document.createElement('span'); dm.className = 'dm'; dm.setAttribute('aria-hidden', 'true');
+      var t = document.createElement('span'); t.className = 't'; t.textContent = it.q;
+      b.appendChild(dm); b.appendChild(t);
+      if (isDone) { var a = document.createElement('span'); a.className = 'ans'; a.textContent = it.a; b.appendChild(a); }
+      b.addEventListener('click', function () {
+        if (isDone) return;
+        state.active = i; render();
+        setMsg('اسحب على حروف الإجابة.', '');
+      });
+      li.appendChild(b); qlist.appendChild(li);
+    });
+    count.textContent = ar(doneCount()) + ' من ' + ar(QUESTIONS.length);
+  }
+
+  function cellAt(e) {
+    var rc = field.getBoundingClientRect();
+    var c = Math.floor((rc.right - e.clientX) / (rc.width / N));
+    var r = Math.floor((e.clientY - rc.top) / (rc.height / N));
+    return [Math.max(0, Math.min(N - 1, r)), Math.max(0, Math.min(N - 1, c))];
+  }
+  function snap(a, b) {
+    var dr = b[0] - a[0], dc = b[1] - a[1], ar_ = Math.abs(dr), ac = Math.abs(dc), sr, sc, n;
+    if (!ar_ && !ac) return [a];
+    if (ac >= 2 * ar_) { sr = 0; sc = Math.sign(dc); n = ac; }
+    else if (ar_ >= 2 * ac) { sr = Math.sign(dr); sc = 0; n = ar_; }
+    else { sr = Math.sign(dr); sc = Math.sign(dc); n = Math.max(ar_, ac); }
+    var out = [];
+    for (var i = 0; i <= n; i++) {
+      var rr = a[0] + sr * i, cc = a[1] + sc * i;
+      if (rr < 0 || rr >= N || cc < 0 || cc >= N) break;
+      out.push([rr, cc]);
+    }
+    return out;
+  }
+  function makeLine(p, cls) {
+    var f = p[0], l = p[p.length - 1];
+    var ln = document.createElementNS(NS, 'line');
+    ln.setAttribute('x1', N - f[1] - 0.5); ln.setAttribute('y1', f[0] + 0.5);
+    ln.setAttribute('x2', N - l[1] - 0.5 + (p.length === 1 ? 0.001 : 0)); ln.setAttribute('y2', l[0] + 0.5);
+    ln.setAttribute('class', cls);
+    return ln;
+  }
+  function word(p) { return p.map(function (x) { return G[x[0]][x[1]]; }).join(''); }
+  function rev(s) { return s.split('').reverse().join(''); }
+
+  field.addEventListener('pointerdown', function (e) {
+    if (!win.hidden || doneCount() === QUESTIONS.length) return;
+    e.preventDefault();
+    try { field.setPointerCapture(e.pointerId); } catch (x) {}
+    dragging = true; start = cellAt(e); path = [start];
+    cur.innerHTML = ''; cur.appendChild(makeLine(path, 'ln-drag'));
+  });
+  field.addEventListener('pointermove', function (e) {
+    if (!dragging) return;
+    path = snap(start, cellAt(e));
+    cur.innerHTML = ''; cur.appendChild(makeLine(path, 'ln-drag'));
+  });
+  function finish() {
+    if (!dragging) return;
+    dragging = false;
+    var p = path, w = word(p);
+    cur.innerHTML = '';
+    if (p.length < 2) return;
+    var target = QUESTIONS[state.active].a;
+    if (w === target || rev(w) === target) {
+      state.solved[state.active] = true;
+      found.appendChild(makeLine(p, 'ln-found'));
+      var next = -1;
+      for (var i = 0; i < QUESTIONS.length; i++) if (!state.solved[i]) { next = i; break; }
+      if (next >= 0) state.active = next;
+      render();
+      if (next < 0) {
+        setMsg('أحسنت! أكملت جميع الأسئلة.', 'good');
+        setTimeout(showWin, 700);
+      } else {
+        setMsg('أحسنت! الإجابة: ' + target + '. السؤال التالي جاهز.', 'good');
+      }
+      return;
+    }
+    var other = -1;
+    for (var j = 0; j < QUESTIONS.length; j++) {
+      if (!state.solved[j] && j !== state.active && (w === QUESTIONS[j].a || rev(w) === QUESTIONS[j].a)) other = j;
+    }
+    var bad = makeLine(p, 'ln-bad'); cur.appendChild(bad);
+    board.classList.remove('shake'); void board.offsetWidth; board.classList.add('shake');
+    setMsg(other >= 0 ? 'هذه كلمة صحيحة لكن لسؤال آخر. اختر السؤال المناسب.' : 'ليست الإجابة. جرّب مرة ثانية.', 'bad');
+    setTimeout(function () { if (bad.parentNode) bad.parentNode.removeChild(bad); }, 650);
+  }
+  field.addEventListener('pointerup', finish);
+  field.addEventListener('pointercancel', finish);
+
+  function showWin() {
+    win.hidden = false;
+    win.classList.remove('play'); void win.offsetWidth; win.classList.add('play');
+    $('again').focus();
+  }
+  $('again').addEventListener('click', function () { win.hidden = true; win.classList.remove('play'); reset(); });
+  $('close').addEventListener('click', function () { win.hidden = true; });
+
+  reset();
+})();
+</script>
+
+</body></html>
